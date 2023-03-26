@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useEffect, useState } from 'react';
 
 import { FaUser, FaBitcoin } from "react-icons/fa";
-
+import { AiOutlineLoading } from "react-icons/ai";
 
 const HeadComponent = () => {
   return (
@@ -81,27 +81,51 @@ const SDGenerator = () => {
   };
 
   return (
-    <main className="flex flex-col justify-center items-center py-16">
 
-      {image ? <div ><Image src = {`data:image/png;base64,${image}`} alt = "Generated image" layout = "fill" objectFit = "cover"></Image> </div> 
-      : <p > Enter a prompt to generate an image. </p>}
+    <main className="flex flex-col justify-center items-center py-16 space-y-6">
+      {image ? (
+        <div className="w-[450px] h-[450px] relative">
+          <Image
+            src={`data:image/png;base64,${image}`}
+            alt="Generated image"
+            layout="fill"
+            objectFit="cover"
+            className="rounded-lg shadow-lg"
+          />
+        </div>
+      ) : (
+        <p className="text-lg font-semibold">Enter a prompt to generate an image.</p>
+      )}
 
-      {loading ? <p>Loading... please wait up to a minute.</p> : null}
+      {loading ? (
+        <div className="flex items-center space-x-2">
+          <AiOutlineLoading className="animate-spin text-blue-600" size={24} />
+          <p className="text-md font-medium text-blue-600">
+            Loading... please wait up to a minute.
+          </p>
+        </div>
+      ) : null}
 
-      <div>
-        <form onSubmit = {handleSubmit}>
-          <textarea 
-            rows = "3"
-            type="text" 
-            id="prompt" 
-            name="prompt" 
-            placeholder = "Enter a prompt" 
-            required 
-            value = {prompt} 
-            onChange = {e => setPrompt(e.target.value)} 
-            />
-          <div>
-            <button type = "submit">Generate</button>
+      <div className="w-full max-w-md">
+        <form onSubmit={handleSubmit}>
+          <textarea
+            rows="3"
+            type="text"
+            id="prompt"
+            name="prompt"
+            placeholder="Enter a prompt"
+            required
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            className="w-full p-2 border bg-gray-900 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none"
+          />
+          <div className="flex justify-center mt-4">
+            <button
+              type="submit"
+              className="px-4 py-2 text-white font-semibold bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
+            >
+              Generate
+            </button>
           </div>
         </form>
       </div>
