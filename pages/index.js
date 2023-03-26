@@ -1,7 +1,9 @@
 import Head from 'next/head'
 import Image from "next/image";
-import styles from '../styles/Home.module.css'
 import { useEffect, useState } from 'react';
+
+import { FaUser, FaBitcoin } from "react-icons/fa";
+
 
 const HeadComponent = () => {
   return (
@@ -15,7 +17,7 @@ const HeadComponent = () => {
 
 const Banner = () => {
   return (
-    <div className={styles.banner}>
+    <div className="w-full absolute top-0 text-center font-medium">
       <p>🚨 Attention: Due to high traffic, our servers may have slower performance.</p>
     </div>
   );
@@ -23,18 +25,36 @@ const Banner = () => {
 
 const Footer = () => {
   return (
-    <footer className={styles.footer}>
+    <footer className="w-full fixed bottom-0 text-center font-medium py-4">
       <a
         href="https://www.banana.dev/"
         target="_blank"
         rel="noopener noreferrer"
       >
-        Powered by{' '}
-        <span className={styles.logo}>
+        Socials: {' '}
+        <span>
           <Image src="/banana.svg" alt="Banana Logo" width={72} height={16} />
         </span>
       </a>
     </footer>
+  );
+};
+
+const UserWalletInfo = (props) => {
+  const { address, balance_sats } = props;
+  return (
+    <div className="fixed top-0 right-0 p-4 flex items-start space-x-2">
+      <div className="flex flex-col items-start space-y-1">
+        <div className="flex items-center space-x-1">
+          <FaUser className="text-green-500" />
+          <span className="text-sm font-semibold">{`${address.slice(0, 6)}...${address.slice(-4)}`}</span>
+        </div>
+        <div className="flex items-center space-x-1">
+          <FaBitcoin className="text-yellow-500" />
+          <span className="text-sm font-semibold">{balance_sats/100000000}</span>
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -61,32 +81,27 @@ const SDGenerator = () => {
   };
 
   return (
-    <main className={styles.main}>
-      <h1 className={styles.title}>
-        Stable Diffusion
-      </h1>
+    <main className="flex flex-col justify-center items-center py-16">
 
-      {image ? <div className = {styles.image}><Image src = {`data:image/png;base64,${image}`} alt = "Generated image" layout = "fill" objectFit = "cover"></Image> </div> 
-      : <p className={styles.description}> Enter a prompt to generate an image. </p>}
+      {image ? <div ><Image src = {`data:image/png;base64,${image}`} alt = "Generated image" layout = "fill" objectFit = "cover"></Image> </div> 
+      : <p > Enter a prompt to generate an image. </p>}
 
       {loading ? <p>Loading... please wait up to a minute.</p> : null}
 
-      <div className={styles.diffusion}>
+      <div>
         <form onSubmit = {handleSubmit}>
-          
           <textarea 
-          rows = "3"
-          type="text" 
-          id="prompt" 
-          name="prompt" 
-          placeholder = "Enter a prompt" 
-          required 
-          value = {prompt} 
-          onChange = {e => setPrompt(e.target.value)} 
-          />
-          
-          <div className = {styles.generatebuttonroot}>
-            <button type = "submit" className = {styles.generatebutton}>Generate</button>
+            rows = "3"
+            type="text" 
+            id="prompt" 
+            name="prompt" 
+            placeholder = "Enter a prompt" 
+            required 
+            value = {prompt} 
+            onChange = {e => setPrompt(e.target.value)} 
+            />
+          <div>
+            <button type = "submit">Generate</button>
           </div>
         </form>
       </div>
@@ -128,28 +143,26 @@ const Home = () => {
     }
   }, []);
 
+
   return (
-    <div className={styles.container}>
+    <div className="flex items-center justify-center h-screen">
       <HeadComponent/>
-      <Banner/>
+      {/* <Banner/> */}
       {connected ? (
-          <div>
-            <div size="small" title="Basic Info" style={{ width: 300, margin: 10 }}>
-              <div>Address: {address}</div>
-              <div>Balance: (Satoshis) {balance.total}</div>
-            </div>
-            <button>Send btc</button>
-            <SDGenerator/>
-          </div>
-        ) : (
-          <button
-            onClick={async () => {
-              const result = await window.unisat.requestAccounts();
-              handleAccountsChanged(result);
-            }}
-          >
-            Connect Unisat Wallet
-          </button>
+        <div className="flex items-center justify-center h-screen">
+          <UserWalletInfo address={address} balance_sats={balance.total}/>
+          <SDGenerator/>
+        </div>
+      ) : (
+        <button className="rounded-xl bg-gradient-to-br from-[#6025F5] to-[#FF5555] px-5 py-3 text-base font-medium text-white transition duration-200 hover:shadow-lg hover:shadow-[#6025F5]/50"
+
+          onClick={async () => {
+            const result = await window.unisat.requestAccounts();
+            handleAccountsChanged(result);
+          }}
+        >
+          Connect Wallet
+        </button>
       )}
       <Footer/>
     </div>
