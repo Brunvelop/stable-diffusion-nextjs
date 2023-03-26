@@ -26,18 +26,16 @@ const Home = () => {
     setImage(data.modelOutputs[0].image_base64);
   };
 
-
-
   return (
     <div className={styles.container}>
       <Head>
-        <title>Stable Diffusion</title>
-        <meta name="description" content="Stable Diffusion Next.js Template" />
+        <title>Typeart</title>
+        <meta name="description" content="Stable Diffusion Bitcoin" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <div className = {styles.banner}>
-        <p>Next.js template available on <a href="https://github.com/zahidkhawaja/stable-diffusion-nextjs" target="_blank" rel="noopener noreferrer">GitHub</a></p>
+        <p>🚨 Attention: Due to high traffic, our servers may have slower performance.</p>
       </div>
 
       <main className={styles.main}>
