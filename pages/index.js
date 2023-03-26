@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import Image from "next/image";
 import styles from '../styles/Home.module.css'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const HeadComponent = () => {
   return (
@@ -94,13 +94,63 @@ const SDGenerator = () => {
   );
 };
 
-
 const Home = () => {
+  const [connected, setConnected] = useState(false);
+  const [address, setAddress] = useState('');
+  const [balance, setBalance] = useState({ confirmed: 0, unconfirmed: 0, total: 0 });
+
+  const handleAccountsChanged = async (accounts) => {
+    if (accounts.length > 0) {
+      setConnected(true);
+      getBasicInfo(window.unisat);
+    } else {
+      setConnected(false);
+    }
+  };
+
+  const getBasicInfo = async (unisat) => {
+    const [account] = await unisat.getAccounts();
+    setAddress(account);
+
+    const balance = await unisat.getBalance();
+    setBalance(balance);
+  };
+  
+  useEffect(() => {
+    const unisat = window.unisat;
+    if (unisat) {
+      unisat.getAccounts().then(handleAccountsChanged);
+      unisat.on('accountsChanged', handleAccountsChanged);
+  
+      return () => {
+        unisat.removeListener('accountsChanged', handleAccountsChanged);
+      };
+    }
+  }, []);
+
   return (
     <div className={styles.container}>
       <HeadComponent/>
       <Banner/>
-      <SDGenerator/>
+      {connected ? (
+          <div>
+            <div size="small" title="Basic Info" style={{ width: 300, margin: 10 }}>
+              <div>Address: {address}</div>
+              <div>Balance: (Satoshis) {balance.total}</div>
+            </div>
+            <button>Send btc</button>
+            <SDGenerator/>
+          </div>
+        ) : (
+          <button
+            onClick={async () => {
+              const result = await window.unisat.requestAccounts();
+              handleAccountsChanged(result);
+            }}
+          >
+            Connect Unisat Wallet
+          </button>
+      )}
       <Footer/>
     </div>
   )
