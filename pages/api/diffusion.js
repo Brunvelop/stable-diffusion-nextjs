@@ -7,7 +7,10 @@ const modelKey = process.env.BANANA_MODEL_KEY
 export default async function (req, res) {
 
     const modelParameters = {
-        "prompt": req.body.prompt
+        "prompt": req.body.prompt,
+        "height": 384,
+        "width": 384,
+        "steps": 20,
     }
 
     const output = await banana.run(apiKey, modelKey, modelParameters);
