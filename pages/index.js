@@ -99,8 +99,8 @@ const SDGenerator = () => {
 
       {loading ? (
         <div className="flex items-center space-x-2">
-          <AiOutlineLoading className="animate-spin text-blue-600" size={24} />
-          <p className="text-md font-medium text-blue-600">
+          <AiOutlineLoading className="animate-spin text-purple-500" size={24} />
+          <p className="text-md font-medium text-purple-500">
             Loading... please wait up to a minute.
           </p>
         </div>
@@ -117,12 +117,12 @@ const SDGenerator = () => {
             required
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            className="w-full p-2 border bg-gray-900 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none"
+            className="w-full p-2 border bg-gray-900 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
           />
           <div className="flex justify-center mt-4">
             <button
               type="submit"
-              className="px-4 py-2 text-white font-semibold bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
+              className="px-4 py-2 text-white font-semibold bg-purple-500 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
             >
               Generate
             </button>
@@ -178,7 +178,7 @@ const Home = () => {
           <SDGenerator/>
         </div>
       ) : (
-        <button className="rounded-xl bg-gradient-to-br from-[#6025F5] to-[#FF5555] px-5 py-3 text-base font-medium text-white transition duration-200 hover:shadow-lg hover:shadow-[#6025F5]/50"
+        <button className="rounded-xl bg-purple-500 px-5 py-3 text-base font-medium text-white transition duration-200 hover:shadow-lg hover:shadow-[#6025F5]/50"
 
           onClick={async () => {
             const result = await window.unisat.requestAccounts();
