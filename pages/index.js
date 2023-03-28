@@ -1,4 +1,3 @@
-import Head from 'next/head'
 import Image from "next/image";
 import { useEffect, useState } from 'react';
 
@@ -7,17 +6,8 @@ import { AiOutlineLoading } from "react-icons/ai";
 
 import Footer from "../components/Footer";
 import UserWalletInfo from "../components/UserWalletInfo";
+import HeadComponent from "../components/HeadComponent";
 
-
-const HeadComponent = () => {
-  return (
-    <Head>
-      <title>Typeart</title>
-      <meta name="description" content="Stable Diffusion Bitcoin" />
-      <link rel="icon" href="/favicon.ico" />
-    </Head>
-  );
-};
 
 const Banner = () => {
   return (
