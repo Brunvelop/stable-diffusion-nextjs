@@ -21,7 +21,6 @@ const SDGenerator = ({ address }) => {
     } catch (error) {
       console.error(error.message);
     }
-
     setLoading({ ...loading, generate: false });
   };
 
@@ -58,14 +57,7 @@ const SDGenerator = ({ address }) => {
             />
           </div>
           <>
-            <button
-              data-modal-target="defaultModal"
-              type="submit"
-              onClick={handleInscribe}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md"
-            >
-              Inscribe
-            </button>
+            
             {status && isModalOpen ? (
               <div
                 id="defaultModal"
@@ -97,23 +89,23 @@ const SDGenerator = ({ address }) => {
                         className="rounded-lg shadow-lg"
                       />
                     </div>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 text-white font-semibold bg-orange-500 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
-                      onClick={async () => {
-                        try {
-                          const txid = await window.unisat.sendBitcoin(
-                            status.data.segwitAddress,
-                            parseInt(status.data.amount)
-                          );
-                          setTxid(txid);
-                        } catch (e) {
-                          setTxid(e.message);
-                        }
-                      }}
-                    >
-                      Inscribe
-                    </button>
+                        <button
+                        type="submit"
+                        className="px-4 py-2 text-white font-semibold bg-orange-500 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
+                        onClick={async () => {
+                            try {
+                            const txid = await window.unisat.sendBitcoin(
+                                status.data.segwitAddress,
+                                parseInt(status.data.amount)
+                            );
+                            setTxid(txid);
+                            } catch (e) {
+                            setTxid(e.message);
+                            }
+                        }}
+                        >
+                        Inscribe
+                        </button>
                   </div>
                 </div>
               </div>
@@ -130,7 +122,11 @@ const SDGenerator = ({ address }) => {
         <div className="flex items-center space-x-2">
           <AiOutlineLoading className="animate-spin text-purple-500" size={24} />
           <p className="text-md font-medium text-purple-500">
-            Loading... please wait up to a minute.
+            {loading.generate
+              ? "Loading... please wait up to a minute."
+            : loading.inscribe
+              ? "Inscribing..."
+            : ""}
           </p>
         </div>
       ) : null}
@@ -155,6 +151,15 @@ const SDGenerator = ({ address }) => {
             >
               Generate
             </button>
+            {generatedImage ? (
+                <button
+                data-modal-target="defaultModal"
+                type="submit"
+                onClick={handleInscribe}
+                className="px-4 py-2 ml-4 text-white font-semibold bg-orange-500 rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
+                >
+                Inscribe
+                </button> ):(null)}
           </div>
         </form>
       </div>
