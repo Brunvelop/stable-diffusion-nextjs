@@ -47,7 +47,7 @@ const Home = () => {
       {/* <Banner/> */}
       {connected ? (
         <div className="flex items-center justify-center h-screen">
-          <UserWalletInfo address={address} balance_sats={balance.confirmed}/>
+          <UserWalletInfo address={address} balanceSats={balance.confirmed}/>
           <SDGenerator address={address}/>
         </div>
       ) : (
