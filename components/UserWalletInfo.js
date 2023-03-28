@@ -6,13 +6,13 @@ const UserWalletInfo = ({ address, balanceSats }) => {
       <div className="flex flex-col items-start space-y-1">
         <div className="flex items-center space-x-1">
           <FaUser className="text-green-500" />
-          <span className="text-sm font-semibold">
+          <span className="text-sm font-semibold text-white">
             {`${address.slice(0, 6)}...${address.slice(-4)}`}
           </span>
         </div>
         <div className="flex items-center space-x-1">
           <FaBitcoin className="text-yellow-500" />
-          <span className="text-sm font-semibold">{balanceSats / 100000000}</span>
+          <span className="text-sm font-semibold text-white">{balanceSats / 100000000}</span>
         </div>
       </div>
     </div>

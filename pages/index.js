@@ -51,7 +51,7 @@ const Home = () => {
           <SDGenerator address={address}/>
         </div>
       ) : (
-        <button className="rounded-xl bg-purple-500 px-5 py-3 text-base font-medium text-white transition duration-200 hover:shadow-lg hover:shadow-[#6025F5]/50"
+        <button className="text-current font-bold bg-yellow-300 px-14 py-1.5 mr-6 last:mr-0 transition-all duration-200 ease-in transform hover:shadow-[0_05px_05px_rgba(0,0,0,.5)] hover:-translate-y-1 hover:-translate-x-1 active:shadow-none active:translate-x-0 active:translate-y-0"
 
           onClick={async () => {
             const result = await window.unisat.requestAccounts();
