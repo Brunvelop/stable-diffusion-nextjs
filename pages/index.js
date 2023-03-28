@@ -5,6 +5,9 @@ import { useEffect, useState } from 'react';
 import { FaUser, FaBitcoin } from "react-icons/fa";
 import { AiOutlineLoading } from "react-icons/ai";
 
+import Footer from "../components/Footer";
+
+
 const HeadComponent = () => {
   return (
     <Head>
@@ -20,23 +23,6 @@ const Banner = () => {
     <div className="w-full absolute top-0 text-center font-medium">
       <p>🚨 Attention: Due to high traffic, our servers may have slower performance.</p>
     </div>
-  );
-};
-
-const Footer = () => {
-  return (
-    <footer className="w-full fixed bottom-0 text-center font-medium py-4">
-      <a
-        href="https://www.banana.dev/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Socials: {' '}
-        <span>
-          <Image src="/banana.svg" alt="Banana Logo" width={72} height={16} />
-        </span>
-      </a>
-    </footer>
   );
 };
 
