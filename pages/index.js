@@ -63,6 +63,7 @@ const SDGenerator = ({address}) => {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [txid, setTxid] = useState("");
 
   const handleSubmit = async(e) => {
     e.preventDefault();
@@ -91,7 +92,7 @@ const SDGenerator = ({address}) => {
       headers: {
           "Content-Type": "application/json",
       },
-      body: JSON.stringify({ walletAddress: address }),
+      body: JSON.stringify({ walletAddress: address, fileBase64: image }),
     });
 
     const data = await response.json();
@@ -164,7 +165,10 @@ const SDGenerator = ({address}) => {
                     className="px-4 py-2 text-white font-semibold bg-orange-500 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
                     onClick={async () => {
                       try {
-                        const txid = await window.unisat.sendBitcoin(status.data.segwitAddress, status.data.amount);
+                        console.log("pay:",status.data.amount, status.data.segwitAddress )
+                        console.log("pay:",typeof status.data.amount, typeof status.data.segwitAddress )
+                        //const txid = await window.unisat.sendBitcoin("bc1q0h4crxu0g5ggppz8j55l6dcdkfe6f4xrwzzett", 1000);
+                        const txid = await window.unisat.sendBitcoin(status.data.segwitAddress, parseInt(status.data.amount));
                         setTxid(txid);
                       } catch (e) {
                         setTxid(e.message);
@@ -261,7 +265,7 @@ const Home = () => {
       {/* <Banner/> */}
       {connected ? (
         <div className="flex items-center justify-center h-screen">
-          <UserWalletInfo address={address} balance_sats={balance.total}/>
+          <UserWalletInfo address={address} balance_sats={balance.confirmed}/>
           <SDGenerator address={address}/>
         </div>
       ) : (

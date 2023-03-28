@@ -8,12 +8,12 @@ export default async function handler(req, res) {
 
   const walletAddress = req.body.walletAddress;
   const fileName = "photo.jpeg";
-  const feeRate = 10;
-  const fileData = "data:image/jpeg;base64,/9j/4AAvh//Z"  //req.body.file_base64 || "/9j/4AAvh//Z";
+  const feeRate = 15;
+  const fileData = "data:image/jpeg;base64,"+req.body.fileBase64;
 
   try {
     const response = await axios.post(url, {
-      walletAddress: "bc1p2jcpjsd6z4j63z3shes6phw3dhsu6dlfcesk7p6mfhjhchkzu7as9kauy3",//walletAddress,
+      walletAddress: walletAddress,
       fileName:fileName,
       feeRate:feeRate,
       file: fileData,
