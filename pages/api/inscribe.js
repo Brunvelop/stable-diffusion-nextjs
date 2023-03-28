@@ -2,6 +2,18 @@ import axios from "axios";
 
 const API_BASE_URL = "https://generative.xyz/generative/api/developer";
 const API_KEY = process.env.GENERATIVE_API_KEY;
+const FEES_API_URL = "https://mempool.space/api/v1/fees/recommended";
+
+// Helper function to get recommended fee rate
+async function getRecommendedFee() {
+  try {
+    const response = await axios.get(FEES_API_URL);
+    return response.data.halfHourFee;
+  } catch (error) {
+    console.error("Error fetching recommended fee:", error);
+    return null;
+  }
+}
 
 // Helper function to create payment address
 async function createInscription(walletAddress, fileName, feeRate, fileData) {
@@ -43,7 +55,8 @@ export default async function handler(req, res) {
 
     // Set constants
     const fileName = "photo.jpeg";
-    const feeRate = 9;
+    const recommendedFee = await getRecommendedFee();
+    const feeRate = recommendedFee || 15;
     const fileData = `data:image/jpeg;base64,${fileBase64}`;
 
     const data = await createInscription(walletAddress, fileName, feeRate, fileData);
