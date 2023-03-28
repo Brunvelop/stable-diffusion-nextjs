@@ -40,8 +40,7 @@ const Footer = () => {
   );
 };
 
-const UserWalletInfo = (props) => {
-  const { address, balance_sats } = props;
+const UserWalletInfo = ({ address, balance_sats }) => {
   return (
     <div className="fixed top-0 right-0 p-4 flex items-start space-x-2">
       <div className="flex flex-col items-start space-y-1">
@@ -58,10 +57,12 @@ const UserWalletInfo = (props) => {
   );
 };
 
-const SDGenerator = () => {
+const SDGenerator = ({address}) => {
   const [prompt, setPrompt] = useState("");
   const [image, setImage] = useState();
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSubmit = async(e) => {
     e.preventDefault();
@@ -80,18 +81,104 @@ const SDGenerator = () => {
     setImage(data.modelOutputs[0].image_base64);
   };
 
+  const handleInscribe = async(e) => {
+    e.preventDefault();
+    setLoading(true);
+    console.log(address)
+
+    const response = await fetch("/api/inscribe", {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ walletAddress: address }),
+    });
+
+    const data = await response.json();
+    setStatus(data);
+    console.log(data)
+    console.log(status)
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
 
     <main className="flex flex-col justify-center items-center py-16 space-y-6">
       {image ? (
-        <div className="w-[450px] h-[450px] relative">
-          <Image
-            src={`data:image/png;base64,${image}`}
-            alt="Generated image"
-            layout="fill"
-            objectFit="cover"
-            className="rounded-lg shadow-lg"
-          />
+        <div>
+          <div className="w-[450px] h-[450px] relative">
+            <Image
+              src={`data:image/png;base64,${image}`}
+              alt="Generated image"
+              layout="fill"
+              objectFit="cover"
+              className="rounded-lg shadow-lg"
+            />
+          </div>
+          <>
+          <button
+            data-modal-target="defaultModal"
+            type="submit"
+            onClick={handleInscribe}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md"
+          >
+            Inscribe
+          </button>
+          {status && isModalOpen ? (
+            <div
+              id="defaultModal"
+              tabIndex="-1"
+              aria-hidden="true"
+              className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center z-50"
+            >
+              <div
+                id="modal-bg"
+                className="w-full h-full bg-gray-700 bg-opacity-75 absolute"
+              ></div>
+              <div className="relative w-full max-w-xl bg-gray-900 rounded-lg shadow-2xl overflow-hidden">
+                <button
+                  onClick={closeModal}
+                  className="text-gray-200 p-2 absolute top-2 right-2 hover:bg-gray-700 rounded-md"
+                >
+                  X
+                </button>
+                <div className="flex flex-col justify-center items-center p-6 ">
+                  <p className="text-lg font-semibold leading-none text-white">
+                    Request ID: {status.data.id}
+                  </p>
+                  <div className="w-[250px] h-[250px] relative p-6 m-4">
+                    <Image
+                      src={`data:image/png;base64,${image}`}
+                      alt="Generated image"
+                      layout="fill"
+                      objectFit="cover"
+                      className="rounded-lg shadow-lg"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 text-white font-semibold bg-orange-500 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
+                    onClick={async () => {
+                      try {
+                        const txid = await window.unisat.sendBitcoin(status.data.segwitAddress, status.data.amount);
+                        setTxid(txid);
+                      } catch (e) {
+                        setTxid(e.message);
+                      }
+                    }}
+                  >
+                    Iscribe
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </>
+
         </div>
       ) : (
         <p className="text-lg font-semibold">Enter a prompt to generate an image.</p>
@@ -175,7 +262,7 @@ const Home = () => {
       {connected ? (
         <div className="flex items-center justify-center h-screen">
           <UserWalletInfo address={address} balance_sats={balance.total}/>
-          <SDGenerator/>
+          <SDGenerator address={address}/>
         </div>
       ) : (
         <button className="rounded-xl bg-purple-500 px-5 py-3 text-base font-medium text-white transition duration-200 hover:shadow-lg hover:shadow-[#6025F5]/50"
