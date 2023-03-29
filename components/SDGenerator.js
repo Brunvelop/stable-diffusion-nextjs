@@ -29,7 +29,7 @@ const LoadingIndicator = ({ loading }) => (
   </div>
 );
 
-const Modal = ({ closeModal, status, generatedImage }) => (
+const Modal = ({ closeModal, status, generatedImage, txid, setTxid }) => (
   <div
     id="defaultModal"
     tabIndex="-1"
@@ -48,17 +48,38 @@ const Modal = ({ closeModal, status, generatedImage }) => (
         X
       </button>
       <div className="flex flex-col justify-center items-center p-6 ">
-        <p className="text-lg font-semibold leading-none text-white mb-6">
-          You are about to inscribe this image for eternity
-        </p>
-        <p className="text-sm leading-none text-white mb-4">
-          Request ID: {status.data.id}
-        </p>
-        <GeneratedImage generatedImage={generatedImage} size={250}/>
-        <p className="text-xs leading-none text-white mb-4">
-        This process may take minutes or hours to complete, be patient
-        </p>
-        <InscribeButton status={status} />
+        {txid === "" ? (
+          <>
+            <p className="text-lg font-semibold leading-none text-white mb-6">
+              You are about to inscribe this image for eternity
+            </p>
+            <p className="text-sm leading-none text-white mb-4">
+              Request ID: {status.data.id}
+            </p>
+            <GeneratedImage generatedImage={generatedImage} size={250} />
+            <p className="text-xs leading-none text-white mb-4">
+              This process may take minutes or hours to complete, be patient
+            </p>
+            <InscribeButton status={status} setTxid={setTxid} />
+          </>
+        ) : (
+          <>
+            <p className="text-lg font-semibold leading-none text-white mb-6">
+              Your image is now inscribed for eternity!
+            </p>
+            <GeneratedImage generatedImage={generatedImage} size={250} />
+            <p className="text-sm leading-none text-white mb-4">
+              <a href={`https://mempool.space/tx/${txid}`} target="_blank" rel="noopener noreferrer" className="text-yellow-300 underline">Transaction</a>
+            </p>
+            <p className="text-sm leading-none text-white mb-4">
+              The inscription may take minutes to hours to appear in your wallet, please be patient.
+            </p>
+
+            <p className="text-sm leading-none text-white mb-4">
+               ID: {status.data.id}
+            </p>
+          </>
+        )}
       </div>
     </div>
   </div>
@@ -98,8 +119,11 @@ const Form = ({ handleSubmit, prompt, setPrompt, generatedImage, handleInscribe 
   </form>
 );
 
-const InscribeButton = ({ status }) => {
-  const [txid, setTxid] = useState("");
+const InscribeButton = ({ status, setTxid }) => {
+
+  const handleBitcoinSended = async (txid) => {
+      setTxid(txid);
+  };
 
   return (
     <button
@@ -111,9 +135,9 @@ const InscribeButton = ({ status }) => {
             status.data.segwitAddress,
             parseInt(status.data.amount)
           );
-          setTxid(txid);
+          handleBitcoinSended(txid)
         } catch (e) {
-          setTxid(e.message);
+          console.log(e.message);
         }
       }}
     >
@@ -128,6 +152,7 @@ const SDGenerator = ({ address }) => {
   const [loading, setLoading] = useState({ generate: false, inscribe: false });
   const [status, setStatus] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [txid, setTxid] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -149,6 +174,7 @@ const SDGenerator = ({ address }) => {
     try {
       const data = await inscribeImage(address, generatedImage);
       setStatus(data);
+      console.log('status',data)
       setIsModalOpen(true);
     } catch (error) {
       console.error(error.message);
@@ -159,18 +185,18 @@ const SDGenerator = ({ address }) => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setTxid("");
   };
 
   return (
     <main className="flex flex-col justify-center items-center py-16 space-y-6">
       {status && isModalOpen ? (
-            <Modal closeModal={closeModal} status={status} generatedImage={generatedImage} />
+            <Modal closeModal={closeModal} status={status} generatedImage={generatedImage} txid={txid} setTxid={setTxid} />
           ) : null}
       <div className="relative transform bg-white border-4 border-black rounded shadow-[0_15px_15px_rgba(0,0,0,0.99)] p-6">
       {generatedImage ? (
         <>
           <GeneratedImage generatedImage={generatedImage} />
-          
         </>
       ) : (
         <p className="text-lg font-semibold mb-4">
