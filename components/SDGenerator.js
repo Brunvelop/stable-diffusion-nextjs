@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { AiOutlineLoading } from "react-icons/ai";
+import YellowButton from "./YellowButton";
 import { generateImage, inscribeImage } from "../utils/apiHelpers";
 
 const GeneratedImage = ({ generatedImage, size = 450 }) => (
@@ -99,21 +100,11 @@ const Form = ({ handleSubmit, prompt, setPrompt, generatedImage, handleInscribe 
       className="w-full p-2 border bg-gray-200 border-gray-500 rounded-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent resize-none"
     />
     <div className="flex justify-center mt-4">
-      <button
-        type="submit"
-        className="text-current font-bold bg-yellow-300 px-14 py-1.5 border-4 border-black mr-6 last:mr-0 transition-all duration-200 ease-in transform hover:shadow-[0_05px_05px_rgba(0,0,0,.5)] hover:-translate-y-1 hover:-translate-x-1 active:shadow-none active:translate-x-0 active:translate-y-0"
-      >
-        Generate
-      </button>
+      <YellowButton>Generate</YellowButton>
       {generatedImage ? (
-        <button
-          data-modal-target="defaultModal"
-          type="submit"
-          onClick={handleInscribe}
-          className="text-current font-bold bg-yellow-300 px-14 py-1.5 border-4 border-black mr-6 last:mr-0 transition-all duration-200 ease-in transform hover:shadow-[0_05px_05px_rgba(0,0,0,.5)] hover:-translate-y-1 hover:-translate-x-1 active:shadow-none active:translate-x-0 active:translate-y-0"
-        >
+        <YellowButton data-modal-target="defaultModal" onClick={handleInscribe}>
           Inscribe
-        </button>
+        </YellowButton>
       ) : null}
     </div>
   </form>
@@ -126,9 +117,8 @@ const InscribeButton = ({ status, setTxid }) => {
   };
 
   return (
-    <button
-      type="submit"
-      className="text-current mt-2 font-bold bg-yellow-300 px-14 py-1.5 mr-6 last:mr-0 transition-all duration-200 ease-in transform hover:shadow-[0_05px_05px_rgba(0,0,0,.5)] hover:-translate-y-1 hover:-translate-x-1 active:shadow-none active:translate-x-0 active:translate-y-0"
+    <YellowButton 
+    type="submit"
       onClick={async () => {
         try {
           const txid = await window.unisat.sendBitcoin(
@@ -142,7 +132,7 @@ const InscribeButton = ({ status, setTxid }) => {
       }}
     >
       Inscribe
-    </button>
+    </YellowButton>
   );
 };
 
