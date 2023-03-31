@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { AiOutlineLoading } from "react-icons/ai";
-import { generateImage, inscribeImage } from "./apiHelpers";
+import { generateImage, inscribeImage } from "../utils/apiHelpers";
 
 const GeneratedImage = ({ generatedImage, size = 450 }) => (
   <div className={`w-[${size}px] h-[${size}px] relative mb-2`}>
