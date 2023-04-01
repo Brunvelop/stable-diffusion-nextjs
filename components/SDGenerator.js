@@ -86,8 +86,8 @@ const Modal = ({ closeModal, status, generatedImage, txid, setTxid }) => (
   </div>
 );
 
-const Form = ({ handleSubmit, prompt, setPrompt, generatedImage, handleInscribe }) => (
-  <form onSubmit={handleSubmit}>
+const Form = ({ prompt, generatedImage, handleGenerateSubmit, handlePromptChange, handleInscribeClick}) => (
+  <form onSubmit={handleGenerateSubmit}>
     <textarea
       rows="3"
       type="text"
@@ -96,13 +96,13 @@ const Form = ({ handleSubmit, prompt, setPrompt, generatedImage, handleInscribe 
       placeholder="Describe your image"
       required
       value={prompt}
-      onChange={(e) => setPrompt(e.target.value)}
+      onChange={handlePromptChange}
       className="w-full p-2 border bg-gray-200 border-gray-500 rounded-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent resize-none"
     />
     <div className="flex justify-center mt-4">
       <YellowButton>Generate</YellowButton>
       {generatedImage ? (
-        <YellowButton data-modal-target="defaultModal" onClick={handleInscribe}>
+        <YellowButton data-modal-target="defaultModal" onClick={handleInscribeClick}>
           Inscribe
         </YellowButton>
       ) : null}
@@ -144,7 +144,7 @@ const SDGenerator = ({ address }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [txid, setTxid] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleGenerateSubmit = async (e) => {
     e.preventDefault();
     setLoading({ ...loading, generate: true });
 
@@ -157,7 +157,11 @@ const SDGenerator = ({ address }) => {
     setLoading({ ...loading, generate: false });
   };
 
-  const handleInscribe = async (e) => {
+  const handlePromptChange = (e) => {
+    setPrompt(e.target.value);
+  };
+
+  const handleInscribeClick = async (e) => {
     e.preventDefault();
     setLoading({ ...loading, inscribe: true });
 
@@ -194,7 +198,13 @@ const SDGenerator = ({ address }) => {
         </p>
       )}
       <div className="w-full max-w-md">
-        <Form handleSubmit={handleSubmit} prompt={prompt} setPrompt={setPrompt} generatedImage={generatedImage} handleInscribe={handleInscribe} />
+      <Form
+        handleGenerateSubmit={handleGenerateSubmit}
+        handlePromptChange={handlePromptChange}
+        prompt={prompt}
+        generatedImage={generatedImage}
+        handleInscribeClick={handleInscribeClick}
+      />
       </div>
 
       {loading.generate || loading.inscribe ? (
