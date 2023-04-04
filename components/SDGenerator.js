@@ -187,7 +187,8 @@ const SDGenerator = ({ address }) => {
       {status && isModalOpen ? (
             <Modal closeModal={closeModal} status={status} generatedImage={generatedImage} txid={txid} setTxid={setTxid} />
           ) : null}
-      <div className="relative transform bg-white border-4 border-black rounded shadow-[0_15px_15px_rgba(0,0,0,0.99)] p-6">
+      <div className="relative transform backdrop-blur-[3px] backdrop-hue-rotate-90 border-4 border-black rounded shadow-[0_15px_15px_rgba(0,0,0,0.99)] p-6">
+      {/* backdrop-blur-[3px] backdrop-hue-rotate-90 */}
       {generatedImage ? (
         <>
           <GeneratedImage generatedImage={generatedImage} />
