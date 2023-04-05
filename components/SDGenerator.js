@@ -70,14 +70,22 @@ const Modal = ({ closeModal, status, generatedImage, txid, setTxid }) => (
             </p>
             <GeneratedImage generatedImage={generatedImage} size={250} />
             <p className="text-sm leading-none text-white mb-4">
-              <a href={`https://mempool.space/tx/${txid}`} target="_blank" rel="noopener noreferrer" className="text-yellow-300 underline">Transaction</a>
+              <a
+                href={`https://mempool.space/tx/${txid}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-yellow-300 underline"
+              >
+                Transaction
+              </a>
             </p>
             <p className="text-sm leading-none text-white mb-4">
-              The inscription may take minutes to hours to appear in your wallet, please be patient.
+              The inscription may take minutes to hours to appear in your
+              wallet, please be patient.
             </p>
 
             <p className="text-sm leading-none text-white mb-4">
-               ID: {status.data.id}
+              ID: {status.data.id}
             </p>
           </>
         )}
@@ -86,7 +94,13 @@ const Modal = ({ closeModal, status, generatedImage, txid, setTxid }) => (
   </div>
 );
 
-const Form = ({ prompt, generatedImage, handleGenerateSubmit, handlePromptChange, handleInscribeClick}) => (
+const Form = ({
+  prompt,
+  generatedImage,
+  handleGenerateSubmit,
+  handlePromptChange,
+  handleInscribeClick,
+}) => (
   <form onSubmit={handleGenerateSubmit}>
     <textarea
       rows="3"
@@ -102,7 +116,10 @@ const Form = ({ prompt, generatedImage, handleGenerateSubmit, handlePromptChange
     <div className="flex justify-center mt-4">
       <YellowButton>Generate</YellowButton>
       {generatedImage ? (
-        <YellowButton data-modal-target="defaultModal" onClick={handleInscribeClick}>
+        <YellowButton
+          data-modal-target="defaultModal"
+          onClick={handleInscribeClick}
+        >
           Inscribe
         </YellowButton>
       ) : null}
@@ -111,21 +128,20 @@ const Form = ({ prompt, generatedImage, handleGenerateSubmit, handlePromptChange
 );
 
 const InscribeButton = ({ status, setTxid }) => {
-
   const handleBitcoinSended = async (txid) => {
-      setTxid(txid);
+    setTxid(txid);
   };
 
   return (
-    <YellowButton 
-    type="submit"
+    <YellowButton
+      type="submit"
       onClick={async () => {
         try {
           const txid = await window.unisat.sendBitcoin(
             status.data.segwitAddress,
             parseInt(status.data.amount)
           );
-          handleBitcoinSended(txid)
+          handleBitcoinSended(txid);
         } catch (e) {
           console.log(e.message);
         }
@@ -168,7 +184,7 @@ const SDGenerator = ({ address }) => {
     try {
       const data = await inscribeImage(address, generatedImage);
       setStatus(data);
-      console.log('status',data)
+      console.log("status", data);
       setIsModalOpen(true);
     } catch (error) {
       console.error(error.message);
@@ -185,33 +201,39 @@ const SDGenerator = ({ address }) => {
   return (
     <main className="flex flex-col justify-center items-center py-16 space-y-6">
       {status && isModalOpen ? (
-            <Modal closeModal={closeModal} status={status} generatedImage={generatedImage} txid={txid} setTxid={setTxid} />
-          ) : null}
-      <div className="relative transform backdrop-blur-[3px] backdrop-hue-rotate-90 border-4 border-black rounded shadow-[0_15px_15px_rgba(0,0,0,0.99)] p-6">
-      {/* backdrop-blur-[3px] backdrop-hue-rotate-90 */}
-      {generatedImage ? (
-        <>
-          <GeneratedImage generatedImage={generatedImage} />
-        </>
-      ) : (
-        <p className="text-lg font-semibold mb-4">
-          Enter a prompt to generate an image
-        </p>
-      )}
-      <div className="w-full max-w-md">
-      <Form
-        handleGenerateSubmit={handleGenerateSubmit}
-        handlePromptChange={handlePromptChange}
-        prompt={prompt}
-        generatedImage={generatedImage}
-        handleInscribeClick={handleInscribeClick}
-      />
-      </div>
-
-      {loading.generate || loading.inscribe ? (
-        <LoadingIndicator loading={loading} />
+        <Modal
+          closeModal={closeModal}
+          status={status}
+          generatedImage={generatedImage}
+          txid={txid}
+          setTxid={setTxid}
+        />
       ) : null}
-    </div>
+      <div className="relative transform backdrop-blur-[3px] backdrop-hue-rotate-90 border-4 border-black rounded shadow-[0_15px_15px_rgba(0,0,0,0.99)] p-6">
+        {/* backdrop-blur-[3px] backdrop-hue-rotate-90 */}
+        {generatedImage ? (
+          <>
+            <GeneratedImage generatedImage={generatedImage} />
+          </>
+        ) : (
+          <p className="text-lg font-semibold mb-4 text-white">
+            Enter a prompt to generate an image
+          </p>
+        )}
+        <div className="w-full max-w-md">
+          <Form
+            handleGenerateSubmit={handleGenerateSubmit}
+            handlePromptChange={handlePromptChange}
+            prompt={prompt}
+            generatedImage={generatedImage}
+            handleInscribeClick={handleInscribeClick}
+          />
+        </div>
+
+        {loading.generate || loading.inscribe ? (
+          <LoadingIndicator loading={loading} />
+        ) : null}
+      </div>
     </main>
   );
 };
