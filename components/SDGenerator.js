@@ -30,7 +30,7 @@ const LoadingIndicator = ({ loading }) => (
   </div>
 );
 
-const Modal = ({ closeModal, status, generatedImage, txid, setTxid }) => (
+const Modal = ({ closeModal, status, generatedImage, txid, setTxid, wallet }) => (
   <div
     id="defaultModal"
     tabIndex="-1"
@@ -61,7 +61,7 @@ const Modal = ({ closeModal, status, generatedImage, txid, setTxid }) => (
             <p className="text-xs leading-none text-white mb-4">
               This process may take minutes or hours to complete, be patient
             </p>
-            <InscribeButton status={status} setTxid={setTxid} />
+            <InscribeButton status={status} setTxid={setTxid} wallet={wallet}/>
           </>
         ) : (
           <>
@@ -100,6 +100,7 @@ const Form = ({
   handleGenerateSubmit,
   handlePromptChange,
   handleInscribeClick,
+  wallet
 }) => (
   <form onSubmit={handleGenerateSubmit}>
     <textarea
@@ -127,7 +128,7 @@ const Form = ({
   </form>
 );
 
-const InscribeButton = ({ status, setTxid }) => {
+const InscribeButton = ({ status, setTxid, wallet }) => {
   const handleBitcoinSended = async (txid) => {
     setTxid(txid);
   };
@@ -136,15 +137,21 @@ const InscribeButton = ({ status, setTxid }) => {
     <YellowButton
       type="submit"
       onClick={async () => {
-        try {
-          const txid = await window.unisat.sendBitcoin(
-            status.data.segwitAddress,
-            parseInt(status.data.amount)
-          );
-          handleBitcoinSended(txid);
-        } catch (e) {
-          console.log(e.message);
-        }
+        console.log(wallet.paymentAddress)
+        const psbtBase64 = await wallet.createPstb(wallet.paymentAddress, wallet.paymentPublicKey, status.data.segwitAddress, parseInt(status.data.amount));
+        console.log('psbtBase64', psbtBase64);
+        const response = await wallet.provider.signPsbt(psbtBase64, wallet.paymentAddress, [0,1,2]) //<- *****
+        console.log("response", response)
+        setTxid(response.txid)
+        // try {
+        //   const txid = await window.unisat.sendBitcoin(
+        //     status.data.segwitAddress,
+        //     parseInt(status.data.amount)
+        //   );
+        //   handleBitcoinSended(txid);
+        // } catch (e) {
+        //   console.log(e.message);
+        // }
       }}
     >
       Inscribe
@@ -152,7 +159,7 @@ const InscribeButton = ({ status, setTxid }) => {
   );
 };
 
-const SDGenerator = ({ address }) => {
+const SDGenerator = ({ reciveAddress, wallet }) => {
   const [prompt, setPrompt] = useState("");
   const [generatedImage, setGeneratedImage] = useState();
   const [loading, setLoading] = useState({ generate: false, inscribe: false });
@@ -182,7 +189,8 @@ const SDGenerator = ({ address }) => {
     setLoading({ ...loading, inscribe: true });
 
     try {
-      const data = await inscribeImage(address, generatedImage);
+      const data = await inscribeImage(wallet.receivingAddress, generatedImage);
+      console.log("reciveAddress:", wallet.receivingAddress)
       setStatus(data);
       console.log("status", data);
       setIsModalOpen(true);
@@ -207,6 +215,7 @@ const SDGenerator = ({ address }) => {
           generatedImage={generatedImage}
           txid={txid}
           setTxid={setTxid}
+          wallet={wallet}
         />
       ) : null}
       <div className="relative transform backdrop-blur-[3px] backdrop-hue-rotate-90 border-4 border-black rounded shadow-[0_15px_15px_rgba(0,0,0,0.99)] p-6">

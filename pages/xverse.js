@@ -21,7 +21,7 @@ const BITCOIN_NETWORK = {
   wif: TESTNET ? 0xef : 0x80,
 };
 
-async function getUnspentOutputs(address) {
+async function getUTXOs(address) {
   try {
     const url = `${API_URL}/address/${address}/utxo`;
     const response = await axios.get(url);
@@ -32,51 +32,83 @@ async function getUnspentOutputs(address) {
   }
 }
 
-async function getAddressUtxos(address) {
-  const url = `${MEMPOOL_API_URL}/address/${address}/utxo`;
-  const response = await axios.get(url);
-  return response.data;
+async function getInscriptions(address) {
+  try {
+    const url = `https://ordapi.xyz/address/${address}`;
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching inscriptions:', error);
+    return [];
+  }
 }
 
-async function doesUtxoContainInscription(utxo) {
-  const html = await fetch(`https://ordinals.com/output/${utxo.txid}:${utxo.vout}`)
-    .then(response => response.text());
 
-  return html.match(/class=thumbnails/) !== null;
+async function getInscribedUtxos(address, utxos) {
+  try {
+    // Fetch inscriptions from the given address
+    const inscriptions = await getInscriptions(address);
+    console.log("inscriptions:", inscriptions)
+
+    // Filter UTXOs that have inscriptions
+    const inscribedUtxos = utxos.filter((utxo) =>
+      inscriptions.some(
+        (inscription) => {
+          return inscription.id === `${utxo.txid}i${utxo.vout}`
+        }
+      )
+    );
+
+    return inscribedUtxos;
+  } catch (error) {
+    console.error('Error fetching inscribed UTXOs:', error);
+    return [];
+  }
 }
 
-async function selectUtxos(utxos, amount) {
+async function selectUtxos(address, utxos, amount) {
   const selectedUtxos = [];
   let selectedAmount = 0;
 
-  for (const utxo of utxos) {
-    if (await doesUtxoContainInscription(utxo)) {
-      continue;
-    }
+  // Get inscribed UTXOs
+  const inscribedUtxos = await getInscribedUtxos(address, utxos);
+  console.log("inscribedUtxos:",inscribedUtxos)
+
+  // Filter out UTXOs that are not inscribed
+  const nonInscribedUtxos = utxos.filter(
+    (utxo) =>
+      !inscribedUtxos.some(
+        (inscribedUtxo) =>
+          inscribedUtxo.txid === utxo.txid && inscribedUtxo.vout === utxo.vout
+      )
+  );
+
+  for (const utxo of nonInscribedUtxos) {
     selectedUtxos.push(utxo);
     selectedAmount += utxo.value;
-    
+
     if (selectedAmount >= amount) {
       break;
     }
   }
-  
 
   if (selectedAmount < amount) {
     throw new Error(`Not enough spendable funds.
-Address has:  ${satToBtc(selectedAmount)} BTC
-Needed:          ${satToBtc(amount)} BTC
+      Address has:  ${satToBtc(selectedAmount)} BTC
+      Needed:          ${satToBtc(amount)} BTC
 
-UTXOs:
-${utxos.map(x => `${x.txid}:${x.vout}`).join("\n")}`);
+      UTXOs:
+      ${utxos.map((x) => `${x.txid}:${x.vout}`).join('\n')}`);
   }
 
   return selectedUtxos;
 }
 
 async function createPstb(userAddress, userPublicKey) {
-  const utxos = await getUnspentOutputs(userAddress);
-  const selectedUtxos = await selectUtxos(utxos, 1000);
+  const utxos = await getUTXOs(userAddress);
+  const selectedUtxos = await selectUtxos(userAddress, utxos, 1000);
+  console.log('utxos:', utxos)
+  console.log('selectedUtxos:', selectedUtxos)
 
   const publicKey = hex.decode(userPublicKey);
   const p2wpkh = btc.p2wpkh(publicKey, BITCOIN_NETWORK);
