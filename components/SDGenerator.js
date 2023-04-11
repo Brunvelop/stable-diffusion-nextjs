@@ -59,7 +59,7 @@ const Modal = ({ closeModal, status, generatedImage, txid, setTxid, wallet }) =>
             </p>
             <GeneratedImage generatedImage={generatedImage} size={250} />
             <p className="text-xs leading-none text-white mb-4">
-              This process may take minutes or hours to complete, be patient
+              This process may take hours to complete, be patient
             </p>
             <InscribeButton status={status} setTxid={setTxid} wallet={wallet}/>
           </>
@@ -80,7 +80,7 @@ const Modal = ({ closeModal, status, generatedImage, txid, setTxid, wallet }) =>
               </a>
             </p>
             <p className="text-sm leading-none text-white mb-4">
-              The inscription may take minutes to hours to appear in your
+              The inscription may take hours to appear in your
               wallet, please be patient.
             </p>
 
@@ -137,12 +137,16 @@ const InscribeButton = ({ status, setTxid, wallet }) => {
     <YellowButton
       type="submit"
       onClick={async () => {
-        console.log(wallet.paymentAddress)
-        const psbtBase64 = await wallet.createPstb(wallet.paymentAddress, wallet.paymentPublicKey, status.data.segwitAddress, parseInt(status.data.amount));
-        console.log('psbtBase64', psbtBase64);
-        const response = await wallet.provider.signPsbt(psbtBase64, wallet.paymentAddress, [0,1,2]) //<- *****
-        console.log("response", response)
-        setTxid(response.txid)
+        console.log(wallet.paymentAddress);
+        const { psbtB64, utxoCount } = await wallet.createPstb(wallet.paymentAddress, wallet.paymentPublicKey, status.data.segwitAddress, parseInt(status.data.amount));
+        console.log('psbtBase64', psbtB64);
+        
+        // Crea un array con el número de UTXOs seleccionados
+        const utxoIndexArray = Array.from({ length: utxoCount }, (_, i) => i);
+        
+        const response = await wallet.provider.signPsbt(psbtB64, wallet.paymentAddress, utxoIndexArray);
+        console.log("response", response);
+        setTxid(response.txid);
         // try {
         //   const txid = await window.unisat.sendBitcoin(
         //     status.data.segwitAddress,

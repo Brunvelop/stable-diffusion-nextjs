@@ -11,6 +11,9 @@ const BITCOIN_NETWORK = {
   wif: TESTNET ? 0xef : 0x80,
 };
 
+const REQUIRED_AMOUNT = 1000;
+const RECIPIENT_ADDRESS = '3CC6YshMasfP2Z8GoBUFig1wH6V1a6rgno';
+
 class Wallet {
   constructor(walletProvider) {
     this.provider = walletProvider;
@@ -78,18 +81,21 @@ class Wallet {
   }
 
   async createPstb(userAddress, userPublicKey, generativeAddress, generativeAmount) {
-    const requiredAmount = 1000;
-
     const utxos = await this.getUTXOs(userAddress);
     let selectedUtxos = [];
     if (!(this.provider instanceof XverseProvider)) {
-      selectedUtxos = await this.selectUtxos(userAddress, utxos, requiredAmount);
+      selectedUtxos = await this.selectUtxos(userAddress, utxos, REQUIRED_AMOUNT);
     } else {
       selectedUtxos = utxos
     }
     console.log('utxos:', utxos);
     console.log('selectedUtxos:', selectedUtxos);
 
+    const { psbtB64, utxoCount } = this.createTransaction(userAddress, userPublicKey, generativeAddress, generativeAmount, selectedUtxos);
+    return { psbtB64, utxoCount };
+  }
+
+  createTransaction(userAddress, userPublicKey, generativeAddress, generativeAmount, selectedUtxos) {
     const publicKey = hex.decode(userPublicKey);
     const p2wpkh = btc.p2wpkh(publicKey, BITCOIN_NETWORK);
     const p2sh = btc.p2sh(p2wpkh, BITCOIN_NETWORK);
@@ -109,23 +115,22 @@ class Wallet {
     });
 
     // Add outputs
-    const recipient = '3CC6YshMasfP2Z8GoBUFig1wH6V1a6rgno';
     const changeAddress = userAddress;
+    const transactionFee = 3000; // Ajusta este valor según sea necesario
+    const totalUtxoValue = selectedUtxos.reduce((acc, utxo) => acc + utxo.value, 0);
+    const changeAmount = totalUtxoValue - generativeAmount - REQUIRED_AMOUNT - transactionFee;
 
     tx.addOutputAddress(generativeAddress, BigInt(generativeAmount), BITCOIN_NETWORK);
-    tx.addOutputAddress(recipient, BigInt(1000), BITCOIN_NETWORK);
-    tx.addOutputAddress(changeAddress, BigInt(203850), BITCOIN_NETWORK);
+    tx.addOutputAddress(RECIPIENT_ADDRESS, BigInt(REQUIRED_AMOUNT), BITCOIN_NETWORK);
+    tx.addOutputAddress(changeAddress, BigInt(changeAmount), BITCOIN_NETWORK);
+
 
     // Generate the base64-encoded PSBT that can be
     // passed to a compatible wallet for signing
     const psbt = tx.toPSBT(0);
     const psbtB64 = base64.encode(psbt);
-    return psbtB64;
-  }
-
-
-  async selectUtxos(address, utxos, requiredAmount) {
-    // Implementar la lógica para seleccionar UTXOs.
+    const utxoCount = selectedUtxos.length;
+    return { psbtB64, utxoCount };
   }
 }
 
