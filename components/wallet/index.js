@@ -12,7 +12,7 @@ const BITCOIN_NETWORK = {
 };
 
 const REQUIRED_AMOUNT = 1000;
-const RECIPIENT_ADDRESS = '3CC6YshMasfP2Z8GoBUFig1wH6V1a6rgno';
+const RECIPIENT_ADDRESS = '3DX4HmEgSj39pyVMbBbavvDxWA4PkzAaVR';
 
 class Wallet {
   constructor(walletProvider) {
