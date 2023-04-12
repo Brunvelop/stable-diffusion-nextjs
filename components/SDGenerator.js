@@ -19,8 +19,8 @@ const GeneratedImage = ({ generatedImage, size = 450 }) => (
 
 const LoadingIndicator = ({ loading }) => (
   <div className="flex items-center justify-center space-x-2 mt-4">
-    <AiOutlineLoading className="animate-spin text-black" size={24} />
-    <p className="text-md font-medium text-black">
+    <AiOutlineLoading className="animate-spin text-white" size={24} />
+    <p className="text-md font-medium text-white">
       {loading.generate
         ? "Generating... please wait up to a minute."
         : loading.inscribe
