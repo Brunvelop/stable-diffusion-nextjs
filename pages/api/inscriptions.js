@@ -1,5 +1,3 @@
-// api/inscriptions.js
-
 import { createClient } from '@supabase/supabase-js';
 
 // Utiliza las variables de entorno para crear el cliente supabase
@@ -31,8 +29,24 @@ export default async function handler(req, res) {
       // Si todo está bien, envía una respuesta con los datos insertados
       res.status(200).json(data);
     }
+  } else if (req.method === 'GET') {
+    // Realiza una consulta para obtener todos los campos id_inscription no nulos de la tabla purchases
+    const { data, error } = await supabase
+      .from('purchases')
+      .select('id_inscription, inscription_number')
+      .not('id_inscription', 'eq', null)
+      .order('id', { ascending: false })
+      .limit(100);
+
+    // Si hay un error, envía una respuesta con el error
+    if (error) {
+      res.status(400).json({ error: error.message });
+    } else {
+      // Si todo está bien, envía una respuesta con los datos consultados
+      res.status(200).json(data);
+    }
   } else {
-    // Si el método de la solicitud no es POST, envía un mensaje de error
+    // Si el método de la solicitud no es POST ni GET, envía un mensaje de error
     res.status(405).json({ error: 'Método no permitido' });
   }
 }
