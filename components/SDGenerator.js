@@ -61,7 +61,7 @@ const Modal = ({ closeModal, status, generatedImage, txid, setTxid, wallet }) =>
             <p className="text-xs leading-none text-white mb-4">
               This process may take hours to complete, be patient
             </p>
-            <InscribeButton status={status} setTxid={setTxid} wallet={wallet}/>
+            <InscribeButton status={status} setTxid={setTxid} wallet={wallet} image_base64={generatedImage}/>
           </>
         ) : (
           <>
@@ -128,9 +128,24 @@ const Form = ({
   </form>
 );
 
-const InscribeButton = ({ status, setTxid, wallet }) => {
-  const handleBitcoinSended = async (txid) => {
-    setTxid(txid);
+const InscribeButton = ({ status, setTxid, wallet, image_base64 }) => {
+
+  const sendInscriptionData = async (data) => {
+    const response = await fetch('/api/inscriptions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log('Inscripción exitosa:', result);
+    } else {
+      const error = await response.json();
+      console.error('Error en la inscripción:', error);
+    }
   };
 
   return (
@@ -140,22 +155,21 @@ const InscribeButton = ({ status, setTxid, wallet }) => {
         console.log(wallet.paymentAddress);
         const { psbtB64, utxoCount } = await wallet.createPstb(wallet.paymentAddress, wallet.paymentPublicKey, status.data.segwitAddress, parseInt(status.data.amount));
         console.log('psbtBase64', psbtB64);
-        
+
         // Crea un array con el número de UTXOs seleccionados
         const utxoIndexArray = Array.from({ length: utxoCount }, (_, i) => i);
-        
+
         const response = await wallet.provider.signPsbt(psbtB64, wallet.paymentAddress, utxoIndexArray);
-        console.log("response", response);
-        setTxid(response.txid);
-        // try {
-        //   const txid = await window.unisat.sendBitcoin(
-        //     status.data.segwitAddress,
-        //     parseInt(status.data.amount)
-        //   );
-        //   handleBitcoinSended(txid);
-        // } catch (e) {
-        //   console.log(e.message);
-        // }
+        setTxid(response.txId);
+
+        // Llama al endpoint con los datos necesarios
+        const inscriptionData = {
+          recive_address: wallet.receivingAddress,
+          id_generative: status.data.id,
+          tx_pay: response.txId,
+          image_base64: image_base64,
+        };
+        await sendInscriptionData(inscriptionData);
       }}
     >
       Inscribe
