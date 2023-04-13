@@ -11,8 +11,9 @@ const BITCOIN_NETWORK = {
   wif: TESTNET ? 0xef : 0x80,
 };
 
-const REQUIRED_AMOUNT = 1000;
-const RECIPIENT_ADDRESS = '3DX4HmEgSj39pyVMbBbavvDxWA4PkzAaVR';
+
+const RECIPIENT_ADDRESS = process.env.NEXT_PUBLIC_RECIPIENT_ADDRESS;
+const TOTAL_COST = parseInt(process.env.NEXT_PUBLIC_TOTAL_COST);
 
 class Wallet {
   constructor(walletProvider) {
@@ -22,6 +23,26 @@ class Wallet {
     this.balance = 0
     this.paymentPublicKey = ''
     this.receivingPublicKey = ''
+  }
+
+  async selectUtxos(utxos, targetAmount) {
+    let selectedUtxos = [];
+    let selectedAmount = 0;
+
+    for (const utxo of utxos) {
+      if (selectedAmount < targetAmount) {
+        selectedUtxos.push(utxo);
+        selectedAmount += utxo.value;
+      } else {
+        break;
+      }
+    }
+
+    if (selectedAmount < targetAmount) {
+      throw new Error('Insufficient UTXOs to cover target amount');
+    }
+
+    return selectedUtxos;
   }
 
   async getInfo() {
@@ -82,12 +103,8 @@ class Wallet {
 
   async createPstb(userAddress, userPublicKey, generativeAddress, generativeAmount) {
     const utxos = await this.getUTXOs(userAddress);
-    let selectedUtxos = [];
-    if (!(this.provider instanceof XverseProvider)) {
-      selectedUtxos = await this.selectUtxos(userAddress, utxos, REQUIRED_AMOUNT);
-    } else {
-      selectedUtxos = utxos
-    }
+    const selectedUtxos = await this.selectUtxos(utxos, TOTAL_COST);
+
     console.log('utxos:', utxos);
     console.log('selectedUtxos:', selectedUtxos);
 
@@ -118,7 +135,12 @@ class Wallet {
     const changeAddress = userAddress;
     const transactionFee = 3000; // Ajusta este valor según sea necesario
     const totalUtxoValue = selectedUtxos.reduce((acc, utxo) => acc + utxo.value, 0);
-    const changeAmount = totalUtxoValue - generativeAmount - REQUIRED_AMOUNT - transactionFee;
+    const changeAmount = totalUtxoValue - TOTAL_COST;
+    const REQUIRED_AMOUNT = TOTAL_COST - generativeAmount - transactionFee;
+
+    console.log("totalUtxoValue",totalUtxoValue)
+    console.log("changeAmount",changeAmount)
+    console.log("REQUIRED_AMOUNT",REQUIRED_AMOUNT)
 
     tx.addOutputAddress(generativeAddress, BigInt(generativeAmount), BITCOIN_NETWORK);
     tx.addOutputAddress(RECIPIENT_ADDRESS, BigInt(REQUIRED_AMOUNT), BITCOIN_NETWORK);
