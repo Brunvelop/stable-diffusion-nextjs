@@ -82,7 +82,7 @@ const Gallery = () => {
             <p className="text-white mb-2 font-bold"># {image.inscription_number}</p>
             <a href={`https://www.ord.io/${image.id_inscription}`} target="_blank" rel="noopener noreferrer">
               <Image
-                src={`https://ordinals.com/content/${image.id_inscription}`}
+                src={`https://ordin.s3.amazonaws.com/inscriptions/${image.id_inscription}`} //src={`https://ordinals.com/content/${image.id_inscription}`}
                 alt={`Generated image ${index}`}
                 width={size}
                 height={size}
