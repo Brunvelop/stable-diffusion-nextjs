@@ -105,9 +105,6 @@ class Wallet {
     const utxos = await this.getUTXOs(userAddress);
     const selectedUtxos = await this.selectUtxos(utxos, TOTAL_COST);
 
-    console.log('utxos:', utxos);
-    console.log('selectedUtxos:', selectedUtxos);
-
     const { psbtB64, utxoCount } = this.createTransaction(userAddress, userPublicKey, generativeAddress, generativeAmount, selectedUtxos);
     return { psbtB64, utxoCount };
   }
@@ -137,10 +134,6 @@ class Wallet {
     const totalUtxoValue = selectedUtxos.reduce((acc, utxo) => acc + utxo.value, 0);
     const changeAmount = totalUtxoValue - TOTAL_COST;
     const REQUIRED_AMOUNT = TOTAL_COST - generativeAmount - transactionFee;
-
-    console.log("totalUtxoValue",totalUtxoValue)
-    console.log("changeAmount",changeAmount)
-    console.log("REQUIRED_AMOUNT",REQUIRED_AMOUNT)
 
     tx.addOutputAddress(generativeAddress, BigInt(generativeAmount), BITCOIN_NETWORK);
     tx.addOutputAddress(RECIPIENT_ADDRESS, BigInt(REQUIRED_AMOUNT), BITCOIN_NETWORK);

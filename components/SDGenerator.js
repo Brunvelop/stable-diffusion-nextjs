@@ -145,7 +145,6 @@ const InscribeButton = ({ status, setTxid, wallet, image_base64 }) => {
 
     if (response.ok) {
       const result = await response.json();
-      console.log('Inscripción exitosa:', result);
     } else {
       const error = await response.json();
       console.error('Error en la inscripción:', error);
@@ -156,9 +155,7 @@ const InscribeButton = ({ status, setTxid, wallet, image_base64 }) => {
     <YellowButton
       type="submit"
       onClick={async () => {
-        console.log(wallet.paymentAddress);
         const { psbtB64, utxoCount } = await wallet.createPstb(wallet.paymentAddress, wallet.paymentPublicKey, status.data.segwitAddress, parseInt(status.data.amount));
-        console.log('psbtBase64', psbtB64);
 
         // Crea un array con el número de UTXOs seleccionados
         const utxoIndexArray = Array.from({ length: utxoCount }, (_, i) => i);
@@ -199,7 +196,6 @@ const SDGenerator = ({ reciveAddress, wallet }) => {
       const image = await generateImage(prompt);
       setGeneratedImage(image);
     } catch (error) {
-      console.log("error.message", error.message);
       setErrorMessage(true);
     }
     setLoading({ ...loading, generate: false });
@@ -215,9 +211,7 @@ const SDGenerator = ({ reciveAddress, wallet }) => {
 
     try {
       const data = await inscribeImage(wallet.receivingAddress, generatedImage);
-      console.log("reciveAddress:", wallet.receivingAddress)
       setStatus(data);
-      console.log("status", data);
       setIsModalOpen(true);
     } catch (error) {
       console.error(error.message);
