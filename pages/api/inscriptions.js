@@ -35,7 +35,8 @@ export default async function handler(req, res) {
       .from('purchases')
       .select('id_inscription, inscription_number')
       .not('id_inscription', 'eq', null)
-      .order('id', { ascending: false })
+      .not('inscription_number', 'is', null)
+      .order('inscription_number', { ascending: false })
       .limit(100);
 
     // Si hay un error, envía una respuesta con el error
