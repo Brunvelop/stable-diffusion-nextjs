@@ -189,6 +189,11 @@ const SDGenerator = ({ reciveAddress, wallet }) => {
 
   const handleGenerateSubmit = async (e) => {
     e.preventDefault();
+    
+    if (loading.generate) {
+      return;
+    }
+  
     setLoading({ ...loading, generate: true });
     setErrorMessage(false);
   
@@ -204,7 +209,7 @@ const SDGenerator = ({ reciveAddress, wallet }) => {
   const handlePromptChange = (e) => {
     setPrompt(e.target.value);
   };
-
+  
   const handleInscribeClick = async (e) => {
     e.preventDefault();
     setLoading({ ...loading, inscribe: true });
