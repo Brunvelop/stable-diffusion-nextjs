@@ -17,14 +17,18 @@ const GeneratedImage = ({ generatedImage, size = 450 }) => (
   </div>
 );
 
-const LoadingIndicator = ({ loading }) => (
+const StatusMessage = ({ loading, errorMessage }) => (
   <div className="flex items-center justify-center space-x-2 mt-4">
-    <AiOutlineLoading className="animate-spin text-white" size={24} />
+    {(loading.generate || loading.inscribe) && (
+      <AiOutlineLoading className="animate-spin text-white" size={24} />
+    )}
     <p className="text-md font-medium text-white">
       {loading.generate
         ? "Generating... please wait up to a minute."
         : loading.inscribe
         ? "Inscribing..."
+        : errorMessage
+        ? "The servers are busy, please try again."
         : ""}
     </p>
   </div>
@@ -181,6 +185,7 @@ const SDGenerator = ({ reciveAddress, wallet }) => {
   const [prompt, setPrompt] = useState("");
   const [generatedImage, setGeneratedImage] = useState();
   const [loading, setLoading] = useState({ generate: false, inscribe: false });
+  const [errorMessage, setErrorMessage] = useState(false);
   const [status, setStatus] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [txid, setTxid] = useState("");
@@ -188,12 +193,14 @@ const SDGenerator = ({ reciveAddress, wallet }) => {
   const handleGenerateSubmit = async (e) => {
     e.preventDefault();
     setLoading({ ...loading, generate: true });
-
+    setErrorMessage(false);
+  
     try {
       const image = await generateImage(prompt);
       setGeneratedImage(image);
     } catch (error) {
-      console.error(error.message);
+      console.log("error.message", error.message);
+      setErrorMessage(true);
     }
     setLoading({ ...loading, generate: false });
   };
@@ -257,8 +264,8 @@ const SDGenerator = ({ reciveAddress, wallet }) => {
           />
         </div>
 
-        {loading.generate || loading.inscribe ? (
-          <LoadingIndicator loading={loading} />
+        {loading.generate || loading.inscribe || errorMessage ? (
+          <StatusMessage loading={loading} errorMessage={errorMessage}/>
         ) : null}
       </div>
     </main>
