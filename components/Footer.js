@@ -14,7 +14,7 @@ const Footer = () => {
       </div>
       <div className="flex">
         <a
-          href="https://www.banana.dev/"
+          href="https://www.typeart.org/"
           target="_blank"
           rel="noopener noreferrer"
           className="text-white mx-2 text-xs"
@@ -22,7 +22,7 @@ const Footer = () => {
           Terms & Conditions
         </a>
         <a
-          href="https://www.banana.dev/"
+          href="https://www.typeart.org/"
           target="_blank"
           rel="noopener noreferrer"
           className="text-white mx-2 text-xs"
