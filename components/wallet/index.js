@@ -130,7 +130,7 @@ class Wallet {
 
     // Add outputs
     const changeAddress = userAddress;
-    const transactionFee = 3000; // Ajusta este valor según sea necesario
+    const transactionFee = 5000;
     const totalUtxoValue = selectedUtxos.reduce((acc, utxo) => acc + utxo.value, 0);
     const changeAmount = totalUtxoValue - TOTAL_COST;
     const REQUIRED_AMOUNT = TOTAL_COST - generativeAmount - transactionFee;
