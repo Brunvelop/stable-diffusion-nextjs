@@ -49,7 +49,7 @@ const Home = () => {
         <div className="flex flex-col items-center justify-center flex-grow">
           <div className="m-20">
           <YellowButton onClick={handleConnectWallet} disabled={connecting}>
-            {connecting ? 'Connecting...' : 'Connect Xverse'}
+            {connecting ? 'Connecting...' : 'Connect Metamask'}
           </YellowButton>
           </div>
           <Gallery/>

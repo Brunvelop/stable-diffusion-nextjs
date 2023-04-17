@@ -125,7 +125,7 @@ const Form = ({
           data-modal-target="defaultModal"
           onClick={handleInscribeClick}
         >
-          Inscribe
+          Mint
         </YellowButton>
       ) : null}
     </div>
