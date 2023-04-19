@@ -68,7 +68,7 @@ const Gallery = () => {
 
   return (
     <div className="flex flex-col items-center mb-20">
-      <p className="text-lg font-semibold mb-4 text-white">Last Inscritions</p>
+      <p className="text-lg font-semibold mb-4 text-white">Last Inscriptions</p>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full justify-center">
         {imagesToShow.map((image, index) => (
           <div
