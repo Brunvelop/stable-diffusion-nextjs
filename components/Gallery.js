@@ -34,36 +34,33 @@ const useIntersectionObserver = (callback, options = {}) => {
 };
 
 const Gallery = () => {
-  const [allImages, setAllImages] = useState([]);
   const [imagesToShow, setImagesToShow] = useState([]);
-  const [imagesCount, setImagesCount] = useState(10);
+  const [page, setPage] = useState(1);
   const size = 200;
 
   // Función para obtener imágenes desde la API
-  const fetchImages = async () => {
+  const fetchImages = async (pageNumber) => {
     try {
-      const res = await fetch("/api/inscriptions");
+      const res = await fetch(`/api/inscriptions?page=${pageNumber}`);
       const data = await res.json();
 
       if (data && data.length > 0) {
-        setAllImages(data);
-        setImagesToShow(data.slice(0, imagesCount));
+        setImagesToShow((prevImages) => [...prevImages, ...data]);
       }
     } catch (error) {
       console.error("Error fetching images:", error);
     }
   };
 
+  // Fetch images on initial render
   useEffect(() => {
-    fetchImages();
+    fetchImages(page);
   }, []);
 
   // Función para cargar más imágenes cuando se llega al final del scroll
   const loadMore = () => {
-    if (imagesCount < allImages.length) {
-      setImagesCount((prevImagesCount) => prevImagesCount + 10);
-      setImagesToShow(allImages.slice(0, imagesCount + 10));
-    }
+    setPage((prevPage) => prevPage + 1);
+    fetchImages(page + 1);
   };
 
   // Monitorear el último elemento visible
@@ -82,7 +79,7 @@ const Gallery = () => {
             <p className="text-white mb-2 font-bold"># {image.inscription_number}</p>
             <a href={`https://www.ord.io/${image.id_inscription}`} target="_blank" rel="noopener noreferrer">
               <Image
-                src={`https://ordin.s3.amazonaws.com/inscriptions/${image.id_inscription}`} //src={`https://ordinals.com/content/${image.id_inscription}`}
+                src={`https://ordin.s3.amazonaws.com/inscriptions/${image.id_inscription}`}
                 alt={`Generated image ${index}`}
                 width={size}
                 height={size}

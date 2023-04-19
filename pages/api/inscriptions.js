@@ -30,6 +30,12 @@ export default async function handler(req, res) {
       res.status(200).json(data);
     }
   } else if (req.method === 'GET') {
+    // Extrae el parámetro de consulta 'page' de la solicitud
+    const page = parseInt(req.query.page) || 1;
+    const imagesPerPage = 12;
+    const start = (page - 1) * imagesPerPage;
+    const end = start + imagesPerPage - 1;
+
     // Realiza una consulta para obtener todos los campos id_inscription no nulos de la tabla purchases
     const { data, error } = await supabase
       .from('purchases')
@@ -37,7 +43,7 @@ export default async function handler(req, res) {
       .not('id_inscription', 'eq', null)
       .not('inscription_number', 'is', null)
       .order('inscription_number', { ascending: false })
-      .limit(100);
+      .range(start, end);
 
     // Si hay un error, envía una respuesta con el error
     if (error) {
