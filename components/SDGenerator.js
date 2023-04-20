@@ -1,5 +1,7 @@
 import Image from "next/image";
 import { useState } from "react";
+import va from '@vercel/analytics';
+
 import { AiOutlineLoading } from "react-icons/ai";
 import YellowButton from "./YellowButton";
 import { generateImage, inscribeImage } from "../utils/apiHelpers";
@@ -162,6 +164,7 @@ const InscribeButton = ({ status, setTxid, wallet, image_base64 }) => {
 
         const response = await wallet.provider.signPsbt(psbtB64, wallet.paymentAddress, utxoIndexArray);
         setTxid(response.txId);
+        va.track('Create inscription', response.txId)
 
         // Llama al endpoint con los datos necesarios
         const inscriptionData = {
@@ -196,10 +199,11 @@ const SDGenerator = ({ reciveAddress, wallet }) => {
   
     setLoading({ ...loading, generate: true });
     setErrorMessage(false);
-  
+    va.track('CLick generate image')
     try {
       const image = await generateImage(prompt);
       setGeneratedImage(image);
+      va.track('Image generated')
     } catch (error) {
       setErrorMessage(true);
     }
@@ -213,6 +217,7 @@ const SDGenerator = ({ reciveAddress, wallet }) => {
   const handleInscribeClick = async (e) => {
     e.preventDefault();
     setLoading({ ...loading, inscribe: true });
+    va.track('Click inscribe')
 
     try {
       const data = await inscribeImage(wallet.receivingAddress, generatedImage);

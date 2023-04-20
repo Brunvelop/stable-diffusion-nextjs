@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
+import va from '@vercel/analytics';
 
 import Footer from "../components/Footer";
 import UserWalletInfo from "../components/UserWalletInfo";
@@ -28,6 +29,7 @@ const Home = () => {
       setReciveAddress(info.receivingAddress);
       setBalance({ confirmed: info.balance });
       setConnected(true);
+      va.track('wallet connected', info.paymentAddress)
     } catch (error) {
       console.error('Error connecting to wallet:', error);
       setConnected(false);
