@@ -29,7 +29,7 @@ const Home = () => {
       setReciveAddress(info.receivingAddress);
       setBalance({ confirmed: info.balance });
       setConnected(true);
-      va.track('wallet connected', info.paymentAddress)
+      va.track('wallet connected', {'wallet':info.paymentAddress})
     } catch (error) {
       console.error('Error connecting to wallet:', error);
       setConnected(false);
