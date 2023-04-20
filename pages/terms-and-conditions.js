@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function PrivacyPolicy(){
+export default function TermsAndConditions(){
   return (
     <div className="inset-0 flex items-center justify-center m-20">
       <div className="relative transform bg-white border-4 border-black rounded shadow-[0_15px_15px_rgba(0,0,0,0.99)] p-6">
