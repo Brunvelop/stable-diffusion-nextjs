@@ -1,8 +1,6 @@
 import * as btc from 'micro-btc-signer';
 import { hex, base64 } from '@scure/base';
 
-import XverseProvider from "./XverseProvider";
-
 const TESTNET = false
 const BITCOIN_NETWORK = {
   bech32: TESTNET ? 'tb' : 'bc',
@@ -14,6 +12,7 @@ const BITCOIN_NETWORK = {
 
 const RECIPIENT_ADDRESS = process.env.NEXT_PUBLIC_RECIPIENT_ADDRESS;
 const TOTAL_COST = parseInt(process.env.NEXT_PUBLIC_TOTAL_COST);
+const EXTRA_COST = parseInt(process.env.NEXT_PUBLIC_EXTRA_COST);
 
 class Wallet {
   constructor(walletProvider) {
@@ -25,85 +24,27 @@ class Wallet {
     this.receivingPublicKey = ''
   }
 
-  async selectUtxos(utxos, targetAmount) {
-    let selectedUtxos = [];
-    let selectedAmount = 0;
-
-    for (const utxo of utxos) {
-      if (selectedAmount < targetAmount) {
-        selectedUtxos.push(utxo);
-        selectedAmount += utxo.value;
-      } else {
-        break;
-      }
-    }
-
-    if (selectedAmount < targetAmount) {
-      throw new Error('Insufficient UTXOs to cover target amount');
-    }
-
-    return selectedUtxos;
-  }
-
   async getInfo() {
-    const accounts = await this.provider.getAccounts();
+    const info = await this.provider.getInfo();
 
-    const paymentAccount = accounts.find((account) => account.purpose === 'payment');
-    const receivingAccount = accounts.find((account) => account.purpose === 'ordinals');
-
-    const paymentAddress = paymentAccount?.address;
-    const receivingAddress = receivingAccount?.address;
-    const balance = await this.getBalance(paymentAddress);
-    const paymentPublicKey = paymentAccount?.publicKey;
-    const receivingPublicKey = receivingAccount?.publicKey;
-
-    this.paymentAddress = paymentAddress
-    this.receivingAddress = receivingAddress
-    this.balance = balance
-    this.paymentPublicKey = paymentPublicKey
-    this.receivingPublicKey = receivingPublicKey
+    this.paymentAddress = info.paymentAddress;
+    this.receivingAddress = info.receivingAddress;
+    this.balance = info.balance;
+    this.paymentPublicKey = info.paymentPublicKey;
+    this.receivingPublicKey = info.receivingPublicKey;
 
     return {
-      paymentAddress,
-      receivingAddress,
-      balance,
-      paymentPublicKey,
-      receivingPublicKey,
+      paymentAddress: info.paymentAddress,
+      receivingAddress: info.receivingAddress,
+      balance: info.balance,
+      paymentPublicKey: info.paymentPublicKey,
+      receivingPublicKey: info.receivingPublicKey,
     };
   }
 
-  async getBalance(paymentAddress) {
-    if (typeof this.provider.getBalance === 'function') {
-      return this.provider.getBalance(paymentAddress);
-    } else {
-      return this.getBalanceAPI(paymentAddress);
-    }
-  }
-
-  async getBalanceAPI(paymentAddress) {
-    if (!paymentAddress) {
-      throw new Error('Payment address not found');
-    }
-
-    const utxos = await this.getUTXOs(paymentAddress);
-    const balance = utxos.reduce((acc, utxo) => acc + utxo.value, 0);
-
-    return balance;
-  }
-
-  async getUTXOs(address) {
-    const response = await fetch(`https://mempool.space/api/address/${address}/utxo`);
-
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.statusText}`);
-    }
-
-    return await response.json();
-  }
-
   async createPstb(userAddress, userPublicKey, generativeAddress, generativeAmount) {
-    const utxos = await this.getUTXOs(userAddress);
-    const selectedUtxos = await this.selectUtxos(utxos, TOTAL_COST);
+    const utxos = await this.provider.getUTXOs(userAddress);
+    const selectedUtxos = await this.provider.selectUtxos(utxos, generativeAmount+EXTRA_COST); //TOTAL_COST
 
     const { psbtB64, utxoCount } = this.createTransaction(userAddress, userPublicKey, generativeAddress, generativeAmount, selectedUtxos);
     return { psbtB64, utxoCount };
@@ -132,11 +73,13 @@ class Wallet {
     const changeAddress = userAddress;
     const transactionFee = 5000;
     const totalUtxoValue = selectedUtxos.reduce((acc, utxo) => acc + utxo.value, 0);
-    const changeAmount = totalUtxoValue - TOTAL_COST;
-    const REQUIRED_AMOUNT = TOTAL_COST - generativeAmount - transactionFee;
-
+    const changeAmount = totalUtxoValue - generativeAmount - EXTRA_COST - transactionFee;
+    
+    //const changeAmount = totalUtxoValue - TOTAL_COST;
+    //const REQUIRED_AMOUNT = TOTAL_COST - generativeAmount - transactionFee;
+    
     tx.addOutputAddress(generativeAddress, BigInt(generativeAmount), BITCOIN_NETWORK);
-    tx.addOutputAddress(RECIPIENT_ADDRESS, BigInt(REQUIRED_AMOUNT), BITCOIN_NETWORK);
+    tx.addOutputAddress(RECIPIENT_ADDRESS, BigInt(EXTRA_COST), BITCOIN_NETWORK); //EXTRA_COST -> REQUIRED_AMOUNT
     tx.addOutputAddress(changeAddress, BigInt(changeAmount), BITCOIN_NETWORK);
 
 
