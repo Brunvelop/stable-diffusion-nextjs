@@ -1,8 +1,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import va from '@vercel/analytics';
-
-import { AiOutlineLoading } from "react-icons/ai";
+import { AiOutlineLoading, AiFillInfoCircle } from "react-icons/ai";
 import YellowButton from "./YellowButton";
 import { generateImage, inscribeImage } from "../utils/apiHelpers";
 
@@ -109,42 +108,60 @@ const Form = ({
   handleModelChange,
   handleInscribeClick,
   wallet,
-}) => (
-  <form onSubmit={handleGenerateSubmit}>
-    <textarea
-      rows="3"
-      type="text"
-      id="prompt"
-      name="prompt"
-      placeholder="Describe your image"
-      required
-      value={prompt}
-      onChange={handlePromptChange}
-      className="w-full p-2 border bg-gray-200 border-gray-500 rounded-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent resize-none"
-    />
-    <select
-      value={model}
-      onChange={handleModelChange}
-      className="w-full p-2 border bg-gray-200 border-gray-500 rounded-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent mt-4"
-    >
-      <option value="">Select a model</option>
-      <option value="future_diffusion">Future Diffusion</option>
-      <option value="stable_diffusion_2_1">Stable Diffusion 2.1</option>
-    </select>
-    <div className="flex justify-center mt-4">
-      <YellowButton>Generate</YellowButton>
-      {generatedImage ? (
-        <YellowButton
-          data-modal-target="defaultModal"
-          onClick={handleInscribeClick}
-        >
-          Inscribe
-        </YellowButton>
-      ) : null}
-    </div>
-  </form>
-);
+}) => {
+  const getLink = () => {
+    if (model === 'stable_diffusion_2_1') {
+      return 'https://huggingface.co/stabilityai/stable-diffusion-2';
+    } else if (model === 'future_diffusion') {
+      return 'https://huggingface.co/nitrosocke/Future-Diffusion';
+    }
+  };
 
+  return(
+    <form onSubmit={handleGenerateSubmit}>
+      <div className="flex justify-left items-center mb-2">
+        <p className="text-sm text-white">🤖</p>
+        <select
+          value={model}
+          onChange={handleModelChange}
+          className="bg-transparent text-white text-sm focus:outline-none focus:ring-0 focus:border-transparent"
+        >
+          <option className="bg-black" value="stable_diffusion_2_1">Stable Diffusion 2.1</option>
+          <option className="bg-black" value="future_diffusion">Future Diffusion</option>
+        </select>
+        <a href={getLink()} target="_blank" rel="noopener noreferrer" className="ml-1 text-white">
+          <AiFillInfoCircle size={16}/>
+        </a>
+      </div>
+      <p className="text-lg font-semibold mb-4 text-white">
+        Enter a prompt to generate an image
+      </p>
+      <textarea
+        rows="3"
+        type="text"
+        id="prompt"
+        name="prompt"
+        placeholder="Describe your image"
+        required
+        value={prompt}
+        onChange={handlePromptChange}
+        className="w-full p-2 border bg-gray-200 border-gray-500 rounded-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent resize-none"
+      />
+
+      <div className="flex justify-center mt-4">
+        <YellowButton>Generate</YellowButton>
+        {generatedImage ? (
+          <YellowButton
+            data-modal-target="defaultModal"
+            onClick={handleInscribeClick}
+          >
+            Inscribe
+          </YellowButton>
+        ) : null}
+      </div>
+    </form>
+  );
+}
 const InscribeButton = ({ status, setTxid, wallet, image_base64 }) => {
 
   const sendInscriptionData = async (data) => {
@@ -194,7 +211,7 @@ const InscribeButton = ({ status, setTxid, wallet, image_base64 }) => {
 
 const SDGenerator = ({ reciveAddress, wallet }) => {
   const [prompt, setPrompt] = useState("");
-  const [model, setModel] = useState("");
+  const [model, setModel] = useState("stable_diffusion_2_1");
   const [generatedImage, setGeneratedImage] = useState();
   const [loading, setLoading] = useState({ generate: false, inscribe: false });
   const [errorMessage, setErrorMessage] = useState(false);
@@ -270,9 +287,7 @@ const SDGenerator = ({ reciveAddress, wallet }) => {
             <GeneratedImage generatedImage={generatedImage} />
           </>
         ) : (
-          <p className="text-lg font-semibold mb-4 text-white">
-            Enter a prompt to generate an image
-          </p>
+          <></>
         )}
         <div className="w-full max-w-md">
           <Form

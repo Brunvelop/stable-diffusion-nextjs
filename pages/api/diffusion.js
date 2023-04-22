@@ -4,7 +4,7 @@ const apiKey = process.env.BANANA_API_KEY;
 const futureDiffusionKey = process.env.BANANA_MODEL_KEY_FUTURE_DIFFUSION;
 const stableDiffusion21Key = process.env.BANANA_MODEL_KEY_STABLE_DIFFUSION_2_1;
 
-async function runBananaModel(model, prompt, height = 64, width = 64, steps = 20) {
+async function runBananaModel(model, prompt, height = 64*6, width = 64*6, steps = 20) {
   let modelKey;
   switch (model) {
     case "future_diffusion":
