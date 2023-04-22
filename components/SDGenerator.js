@@ -199,7 +199,7 @@ const SDGenerator = ({ reciveAddress, wallet }) => {
   
     setLoading({ ...loading, generate: true });
     setErrorMessage(false);
-    va.track('CLick generate image')
+    va.track('click generate image')
     try {
       const image = await generateImage(prompt);
       setGeneratedImage(image);
