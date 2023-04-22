@@ -1,11 +1,11 @@
-export const generateImage = async (prompt) => {
+export const generateImage = async (model, prompt) => {
     try {
       const response = await fetch("/api/diffusion", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ model, prompt }),
       });
   
       const data = await response.json();

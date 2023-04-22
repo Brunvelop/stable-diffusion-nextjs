@@ -102,11 +102,13 @@ const Modal = ({ closeModal, status, generatedImage, txid, setTxid, wallet }) =>
 
 const Form = ({
   prompt,
+  model,
   generatedImage,
   handleGenerateSubmit,
   handlePromptChange,
+  handleModelChange,
   handleInscribeClick,
-  wallet
+  wallet,
 }) => (
   <form onSubmit={handleGenerateSubmit}>
     <textarea
@@ -120,6 +122,15 @@ const Form = ({
       onChange={handlePromptChange}
       className="w-full p-2 border bg-gray-200 border-gray-500 rounded-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent resize-none"
     />
+    <select
+      value={model}
+      onChange={handleModelChange}
+      className="w-full p-2 border bg-gray-200 border-gray-500 rounded-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent mt-4"
+    >
+      <option value="">Select a model</option>
+      <option value="future_diffusion">Future Diffusion</option>
+      <option value="stable_diffusion_2_1">Stable Diffusion 2.1</option>
+    </select>
     <div className="flex justify-center mt-4">
       <YellowButton>Generate</YellowButton>
       {generatedImage ? (
@@ -183,6 +194,7 @@ const InscribeButton = ({ status, setTxid, wallet, image_base64 }) => {
 
 const SDGenerator = ({ reciveAddress, wallet }) => {
   const [prompt, setPrompt] = useState("");
+  const [model, setModel] = useState("");
   const [generatedImage, setGeneratedImage] = useState();
   const [loading, setLoading] = useState({ generate: false, inscribe: false });
   const [errorMessage, setErrorMessage] = useState(false);
@@ -201,7 +213,7 @@ const SDGenerator = ({ reciveAddress, wallet }) => {
     setErrorMessage(false);
     va.track('click generate image')
     try {
-      const image = await generateImage(prompt);
+      const image = await generateImage(model, prompt);
       setGeneratedImage(image);
       va.track('Image generated')
     } catch (error) {
@@ -212,6 +224,10 @@ const SDGenerator = ({ reciveAddress, wallet }) => {
 
   const handlePromptChange = (e) => {
     setPrompt(e.target.value);
+  };
+
+  const handleModelChange = (e) => {
+    setModel(e.target.value);
   };
   
   const handleInscribeClick = async (e) => {
@@ -262,7 +278,9 @@ const SDGenerator = ({ reciveAddress, wallet }) => {
           <Form
             handleGenerateSubmit={handleGenerateSubmit}
             handlePromptChange={handlePromptChange}
+            handleModelChange={handleModelChange}
             prompt={prompt}
+            model={model}
             generatedImage={generatedImage}
             handleInscribeClick={handleInscribeClick}
           />

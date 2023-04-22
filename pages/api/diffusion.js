@@ -1,11 +1,22 @@
 import * as banana from "@banana-dev/banana-dev";
 
-// Load Banana API keys from environment variables
 const apiKey = process.env.BANANA_API_KEY;
-const modelKey = process.env.BANANA_MODEL_KEY;
+const futureDiffusionKey = process.env.BANANA_MODEL_KEY_FUTURE_DIFFUSION;
+const stableDiffusion21Key = process.env.BANANA_MODEL_KEY_STABLE_DIFFUSION_2_1;
 
-// Helper function to run Banana model
-async function runBananaModel(prompt, height = 64, width = 64, steps = 20) {
+async function runBananaModel(model, prompt, height = 64, width = 64, steps = 20) {
+  let modelKey;
+  switch (model) {
+    case "future_diffusion":
+      modelKey = futureDiffusionKey;
+      break;
+    case "stable_diffusion_2_1":
+      modelKey = stableDiffusion21Key;
+      break;
+    default:
+      throw new Error("Invalid model parameter");
+  }
+
   const modelParameters = {
     prompt,
     height,
@@ -16,25 +27,19 @@ async function runBananaModel(prompt, height = 64, width = 64, steps = 20) {
   return await banana.run(apiKey, modelKey, modelParameters);
 }
 
-// Main function to handle requests and responses
 export default async function (req, res) {
   try {
-    // Get prompt from request body
-    const prompt = req.body.prompt;
+    const { prompt, model } = req.body;
 
-    // Validate input
-    if (!prompt) {
-      res.status(400).json({ error: "Missing prompt in the request body" });
+    if (!prompt || !model) {
+      res.status(400).json({ error: "Missing prompt or model in the request body" });
       return;
     }
 
-    // Run model and get output
-    const output = await runBananaModel(prompt);
+    const output = await runBananaModel(model, prompt);
 
-    // Send output as JSON response
     res.status(200).json(output);
   } catch (error) {
-    // Handle errors and exceptions
     console.error("Error running Banana model:", error);
     res.status(500).json({ error: "Internal server error" });
   }
